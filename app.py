@@ -106,8 +106,9 @@ def Analysis_Update_Pairs():
         for x, y in wordlistfreq.items():
             dict_set = {"text":x, "value":y}
             mylist.append(dict_set)
-        output = {"Score":value+1, "Pairs":mylist}
-        Database_Update_ANALYSIS_WORDS_AMAZON_PAIRS.insert_one(output)
+        Data_now = { "$set": {"Pairs":mylist}}
+        filter_D = { "Score": value+1 }
+        Database_Update_ANALYSIS_WORDS_AMAZON_PAIRS.update_one(filter_D, Data_now)
         print(value+1) 
     return "Update Success"
 
