@@ -13,15 +13,31 @@ client = pymongo.MongoClient(connection_url)
 # Database 
 Database = client.get_database('PROJECT_BIG_DATA')
 
-Database_Collections = client['PROJECT_BIG_DATA']
-Database_Update = Database_Collections['ANALYSIS_WORDS_AMAZON']
+Database_Main_Collections = client['PROJECT_BIG_DATA']
+Database_Update_ANALYSIS_WORDS_AMAZON = Database_Main_Collections['ANALYSIS_WORDS_AMAZON']
+Database_Update_ANALYSIS_WORDS_AMAZON_PAIRS = Database_Main_Collections['ANALYSIS_WORDS_AMAZON_ORDERED_PAIRS']
 # Table 
 SampleTable_MainData = Database.AMAZON_FOOD_REVIEWS
 SampleTable_AnalysisData = Database.ANALYSIS_WORDS_AMAZON
+SampleTable_AnalysisData_Pairs = Database.ANALYSIS_WORDS_AMAZON_ORDERED_PAIRS
 
 @app.route('/', methods=['GET']) 
-def helloOpen(): 
-    return 'WELCOME_AMAZON_FOOD_REVIEWS_API <br><br>HelpfulnessDenominator = ความเป็นประโยชน์ <br>HelpfulnessNumerator = ความมีประโยชน์ <br>Score = คะแนน'
+def helloOpen():
+    main = 'WELCOME_AMAZON_FOOD_REVIEWS_API <br><br>/find/{จำนวนที่จะดึงมาดู}/\
+<br>/find/HelpfulnessDenominator/{เลข/max/min}/ = ความเป็นประโยชน์ <br>/find/HelpfulnessNumerator/{เลข/max/min}/ = ความมีประโยชน์ \
+<br>/find/Score/{เลข1ถึง5}/ = คะแนน<br>/find/pairs/score/{เลข1-5}/ = คู่อันดับคำกับจำนวน<br><br>\
+/analysis_update/by_Score/ = ใช้อัพเดทข้อมูล(ไม่จำเป็นไม่ต้อง)<br>/analysis_pairs_update/ = ใช้อัพเดทข้อมูล(ไม่จำเป็นไม่ต้อง)'
+    return main
+
+@app.route('/find/<value>/', methods=['GET']) 
+def findAll(value): 
+    output = {}
+    i = 0
+    for x in SampleTable_MainData.find().limit(int(value)): 
+        output[i] = x 
+        output[i].pop('_id')
+        i += 1
+    return jsonify(output)
 
 @app.route('/find/<variables>/<value>/', methods=['GET']) 
 def findVariablesByValue(variables,value): 
@@ -52,42 +68,48 @@ def findVariablesAllMax(variables):
         output[i].pop('_id')
         i += 1
     return jsonify(output)
-    
-# @app.route('/analysis_update/<value>/', methods=['GET']) 
-# def findAnalysis(value): 
-#     query = SampleTable_MainData.find().limit(int(value))
 
-#     wordlistALL = []
+@app.route('/find/pairs/score/<value>/', methods=['GET']) 
+def findPairs(value): 
+    query = SampleTable_AnalysisData_Pairs.find({"Score":int(value)+1})
+    output = list(map(lambda y:y["Pairs"], query))
+    return jsonify(output)
 
-#     wordlistALL = list(map(lambda y:y['Text'].lower().split(), query))
+@app.route('/analysis_update/by_Score/', methods=['GET']) 
+def Analysis_Update():
+    for value in range(5):
+        query = SampleTable_MainData.find({"Score": str(value+1)}).limit(5000)
+        wordlistALL = []
+        wordlistALL = list(map(lambda y:y['Text'].lower().split(), query))
+        wordlistALL = reduce(lambda a,b:a+b, wordlistALL)
+        wordlistALL = [x.replace('<br', '') for x in wordlistALL]
+        removetable = str.maketrans('', '', '\'|,@#%".()~!?/<>-$%&^*\=:[]+{};`_0123456789 ')
+        wordlistALL = [x.translate(removetable) for x in wordlistALL]
+        wordlistALL.sort()
+        Data_now = { "$set": {"Timestamp":ts, "Wordlist_RAW":wordlistALL}}
+        filter_D = { "Score": value+1 }
+        Database_Update_ANALYSIS_WORDS_AMAZON.update_one(filter_D, Data_now)  
+        print(value+1)
 
-#     wordlistALL = reduce(lambda a,b:a+b, wordlistALL)
+    return "Update Success"
 
-#     wordlistALL = [x.replace('<br', '') for x in wordlistALL]
-
-#     removetable = str.maketrans('', '', '\',@#%".()~!?/<>-$%&^*\=:[]+{};`_0123456789 ')
-
-#     wordlistALL = [x.translate(removetable) for x in wordlistALL]
-
-#     wordlistALL.sort()
-
-#     Data_now = {"Timestamp":ts, "Wordlist_RAW":wordlistALL}
-
-#     Database_Update.insert_one(Data_now)
-
-#     return "Update Success"
-
-# @app.route('/analysis/', methods=['GET']) 
-# def Analysis(): 
-#     query = SampleTable_AnalysisData.find()
-#     wordlistALL = list(map(lambda y:y["Wordlist_RAW"], query))
-#     wordlistALL_remove_duplicates = list(dict.fromkeys(wordlistALL[0]))
-#     wordfreq = [wordlistALL[0].count(w) for w in wordlistALL_remove_duplicates]
-#     # wordfreq = list(map(lambda x,y : x.count(y), wordlistALL, wordlistALL_remove_duplicates))
-#     wordlistfreq = list(set(zip(wordlistALL_remove_duplicates, wordfreq)))
-#     wordlistfreq = list(dict.fromkeys(wordlistfreq))
-#     wordlistfreq.sort(key = lambda x: x[1], reverse=True)
-#     return jsonify(wordlistfreq)
+@app.route('/analysis_pairs_update/', methods=['GET']) 
+def Analysis_Update_Pairs(): 
+    for value in range(5):
+        query = SampleTable_AnalysisData.find({"Score": value+1})
+        wordlistALL = list(map(lambda y:y["Wordlist_RAW"], query))
+        wordlistALL_remove_duplicates = list(dict.fromkeys(wordlistALL[0]))
+        wordlistALL_remove_duplicates.remove("")
+        wordfreq = [wordlistALL[0].count(w) for w in wordlistALL_remove_duplicates]
+        wordlistfreq = dict(zip(wordlistALL_remove_duplicates, wordfreq))
+        mylist = []
+        for x, y in wordlistfreq.items():
+            dict_set = {"text":x, "value":y}
+            mylist.append(dict_set)
+        output = {"Score":value+1, "Pairs":mylist}
+        Database_Update_ANALYSIS_WORDS_AMAZON_PAIRS.insert_one(output)
+        print(value+1) 
+    return "Update Success"
 
 if __name__ == '__main__': 
 	app.run(debug=True) 
