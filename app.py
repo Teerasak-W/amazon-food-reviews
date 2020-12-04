@@ -21,7 +21,7 @@ SampleTable_MainData = Database.AMAZON_FOOD_REVIEWS
 SampleTable_AnalysisData = Database.ANALYSIS_WORDS_AMAZON
 SampleTable_AnalysisData_Pairs = Database.ANALYSIS_WORDS_AMAZON_ORDERED_PAIRS
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 @cross_origin()
 def helloOpen():
     main = 'WELCOME_AMAZON_FOOD_REVIEWS_API <br><br>/find/{จำนวนที่จะดึงมาดู}/\
@@ -30,7 +30,7 @@ def helloOpen():
 /analysis_update/by_Score/ = ใช้อัพเดทข้อมูล(ไม่จำเป็นไม่ต้อง)<br>/analysis_pairs_update/ = ใช้อัพเดทข้อมูล(ไม่จำเป็นไม่ต้อง)'
     return main
 
-@app.route('/find/<value>/', methods=['GET'])
+@app.route('/find/<value>/')
 @cross_origin()
 def findAll(value): 
     output = {}
@@ -41,7 +41,7 @@ def findAll(value):
         i += 1
     return jsonify(output)
 
-@app.route('/find/<variables>/<value>/', methods=['GET'])
+@app.route('/find/<variables>/<value>/')
 @cross_origin()
 def findVariablesByValue(variables,value): 
     output = {}
@@ -52,7 +52,7 @@ def findVariablesByValue(variables,value):
         i += 1
     return jsonify(output)
 
-@app.route('/find/<variables>/min/', methods=['GET'])
+@app.route('/find/<variables>/min/')
 @cross_origin()
 def findVariablesAllMin(variables): 
     output = {}
@@ -63,7 +63,7 @@ def findVariablesAllMin(variables):
         i += 1
     return jsonify(output)
 
-@app.route('/find/<variables>/max/', methods=['GET'])
+@app.route('/find/<variables>/max/')
 @cross_origin()
 def findVariablesAllMax(variables): 
     output = {}
@@ -74,14 +74,14 @@ def findVariablesAllMax(variables):
         i += 1
     return jsonify(output)
 
-@app.route('/find/pairs/score/<value>/', methods=['GET'])
+@app.route('/find/pairs/score/<value>/')
 @cross_origin()
 def findPairs(value): 
     query = SampleTable_AnalysisData_Pairs.find({"Score":int(value)+1})
     output = list(map(lambda y:y["Pairs"], query))
     return jsonify(output)
 
-@app.route('/analysis_update/by_Score/', methods=['GET'])
+@app.route('/analysis_update/by_Score/')
 @cross_origin()
 def Analysis_Update():
     for value in range(5):
@@ -100,7 +100,7 @@ def Analysis_Update():
 
     return "Update Success"
 
-@app.route('/analysis_pairs_update/', methods=['GET'])
+@app.route('/analysis_pairs_update/')
 @cross_origin()
 def Analysis_Update_Pairs(): 
     for value in range(5):
