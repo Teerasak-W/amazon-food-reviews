@@ -112,8 +112,11 @@ def Analysis_Update_Pairs():
         wordlistfreq = dict(zip(wordlistALL_remove_duplicates, wordfreq))
         mylist = []
         for x, y in wordlistfreq.items():
-            dict_set = {"text":x, "value":y}
-            mylist.append(dict_set)
+            if x in ['is', 'in', 'but', 'of', 'to', 'the', 'have', 'are', 'so', 'was', 'a', 'for', 'and', 'is', 'that', 'its', 'get', 'more', 'for', 'will', 'from', 'me', 'too', 'as', 'it', 'like', 'that', 'was', 'not', 'so', 'be', 'i', 'my', 'are', 'do', 'or', 'this', 'had', 'other', 'by', 'am', 'all', 'an', 'on', 'can', 'as', 'how', 'did', 'about', 'me', 'too', 'if', 'id', 'ok', 'no', 'that', 'like', 'what', 'even', 'do', 'we', '-------------', 'you', 'with', 'dont', 'one', 'got', 'then', 'at', 'any', 'where', 'im', 'does', 'who', 'too', 'on', 'much', 'she', 'he', 'just', 'when', 'would', 'some', 'what']:
+                continue
+            else:
+                dict_set = {"text":x, "value":y}
+                mylist.append(dict_set)
         Data_now = { "$set": {"Pairs":mylist}}
         filter_D = { "Score": value+1 }
         Database_Update_ANALYSIS_WORDS_AMAZON_PAIRS.update_one(filter_D, Data_now)
