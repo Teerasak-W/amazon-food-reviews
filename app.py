@@ -30,7 +30,7 @@ SampleTable_AnalysisData_Pairs = Database.ANALYSIS_WORDS_AMAZON_ORDERED_PAIRS
 def helloOpen():
     main = 'WELCOME_AMAZON_FOOD_REVIEWS_API <br><br>/find/{จำนวนที่จะดึงมาดู}/\
 <br>/find/HelpfulnessDenominator/{เลข/max/min}/ = ความเป็นประโยชน์ <br>/find/HelpfulnessNumerator/{เลข/max/min}/ = ความมีประโยชน์ \
-<br>/find/Score/{เลข1ถึง5}/ = คะแนน<br>/find/pairs/score/{เลข1-5}/ = คู่อันดับคำกับจำนวน<br><br>\
+<br>/find/Score/{เลข1ถึง5}/ = คะแนน<br>/find/pairs/score/{เลข1-5}/ = คู่อันดับคำกับจำนวน<br>/find/pairs/search/{คำที่จะค้นหา}/ = หาว่าคำๆนี้อยู่ในช่วงคะแนน(ดาว) มีความถี่เท่าไร (ใช้เวลาค้นหาสักครู่...)<br><br>\
 /analysis_update/by_Score/ = ใช้อัพเดทข้อมูล(ไม่จำเป็นไม่ต้อง)<br>/analysis_pairs_update/ = ใช้อัพเดทข้อมูล(ไม่จำเป็นไม่ต้อง)'
     return main
 
@@ -98,18 +98,21 @@ def findPairs(value):
     output = list(map(lambda y:y["Pairs"], query))
     return jsonify(output)
 
-# @app.route('/find/pairs/search/<value>/')
-# @cross_origin()
-# def findSearchPairs(value):
-#     output_list = []
-#     for x in range(6):
-#         query = SampleTable_AnalysisData_Pairs.find({"Score":x+1})
-#         output = list(map(lambda y:y["Pairs"], query))
-#         for i in output:
-#             if i["text"] == value:
-#                 output_list.append(i)
-#                 break
-#     return jsonify(output_list)
+#ใช้ในการค้นหาความถี่ว่าคำนี้ใน ดาวเท่านี้มีความถี่เท่าไร
+@app.route('/find/pairs/search/<value>/')
+@cross_origin()
+def findSearchPairs(value):
+    output_list = []
+    for x in range(5):#ค้นหาจากชุดข้อมูล5ชุด(ดามจำนวนดาว)
+        query = SampleTable_AnalysisData_Pairs.find({"Score":x+1})
+        output = list(map(lambda y:y["Pairs"], query))
+        for i in output[0]:
+            if i["text"] == value:
+                output_list.append(i)#เจอคำที่ค้นหาเอาเข้า list
+                break
+            if output[0][-1] == i:
+                output_list.append({"text": value, "value": "None"})#หมด loop ไม่เจอคำที่ค้นหาเอา นำ none เข้า list
+    return jsonify(output_list)
 
 #ส่วนใช้ในการอัพเดทข้อมูล
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
