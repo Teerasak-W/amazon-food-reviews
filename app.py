@@ -110,7 +110,7 @@ def Analysis_Update():
         wordlistALL = list(map(lambda y:y['Text'].lower().split(), query))#ดึงข้อมูลแค่ส่วน Text มาทำ lower case และแบ่งเป็นคำๆ
         wordlistALL = reduce(lambda a,b:a+b, wordlistALL) #รวมชุดlistทั้งหมดให้เป็น list เดียว
         wordlistALL = [x.replace('<br', '') for x in wordlistALL] # ตัดคำที่เป็น <br
-        removetable = str.maketrans('', '', '\'-|,@#%".()~!?/<>-$%&^*\=:[]+{};`_0123456789 ') #ตัดตัวอักษรพิเศษกับตัวเลข
+        removetable = str.maketrans('', '', '\'-|,@#%".()~!?/<>-$%&^*\\=:[]+{};`_0123456789 ') #ตัดตัวอักษรพิเศษกับตัวเลข
         wordlistALL = [x.translate(removetable) for x in wordlistALL] #ตัดตัวอักษรพิเศษกับตัวเลข
         wordlistALL.sort() #เรียงข้อมูล
         Data_now = { "$set": {"Timestamp":ts, "Wordlist_RAW":wordlistALL}} #เขียน value ที่จะไปอัพเดท
