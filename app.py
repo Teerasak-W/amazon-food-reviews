@@ -98,6 +98,19 @@ def findPairs(value):
     output = list(map(lambda y:y["Pairs"], query))
     return jsonify(output)
 
+# @app.route('/find/pairs/search/<value>/')
+# @cross_origin()
+# def findSearchPairs(value):
+#     output_list = []
+#     for x in range(6):
+#         query = SampleTable_AnalysisData_Pairs.find({"Score":x+1})
+#         output = list(map(lambda y:y["Pairs"], query))
+#         for i in output:
+#             if i["text"] == value:
+#                 output_list.append(i)
+#                 break
+#     return jsonify(output_list)
+
 #ส่วนใช้ในการอัพเดทข้อมูล
 #--------------------------------------------------------------------------------------------------------------------------------------------------------
 #ดึงชุดข้อมูลมาอัพเดทโดยแบ่งเป็น5ชุด(ตามดาว)5000ชุดแรก และนำในส่วนของ Text มาทำเป็น list คำต่างๆ แล้ว ตัดตัวอักษรพิเศษกับตัวเลขออกส่งขึ้นไปเก็บอีก Table นึง(ANALYSIS_WORDS_AMAZON) 
@@ -134,7 +147,7 @@ def Analysis_Update_Pairs():
         mylist = []#listรับข้อมูล
 
         #คำที่อาจไม่มีประโยชน์
-        unnecessary_text = ['is', 'in', 'but', 'of', 'to', 'the', 'have', 'are', 'so', 'was', 'a', 'for', 'and', 'is', 'that', 'its', 'get', 'more', 'for', 'will', 'from', 'me', 'too', 'as', 'it', 'like', 'that', 'was', 'not', 'so', 'be', 'i', 'my', 'are', 'do', 'or', 'this', 'had', 'other', 'by', 'am', 'all', 'an', 'on', 'can', 'as', 'how', 'did', 'about', 'me', 'too', 'if', 'id', 'ok', 'no', 'that', 'like', 'what', 'even', 'do', 'we', '-------------', 'you', 'with', 'dont', 'one', 'got', 'then', 'at', 'any', 'where', 'im', 'does', 'who', 'too', 'on', 'much', 'she', 'he', 'just', 'when', 'would', 'some', 'what']
+        unnecessary_text = ['is', 'in', 'but', 'of', 'to', 'the', 'have', 'are', 'so', 'was', 'a', 'for', 'and', 'is', 'that', 'its', 'get', 'more', 'for', 'will', 'from', 'me', 'too', 'as', 'it', 'like', 'that', 'was', 'not', 'so', 'be', 'i', 'my', 'are', 'do', 'or', 'this', 'had', 'other', 'by', 'am', 'all', 'an', 'on', 'can', 'as', 'how', 'did', 'about', 'me', 'too', 'if', 'id', 'ok', 'no', 'that', 'like', 'what', 'even', 'do', 'we', '-------------', 'you', 'with', 'dont', 'one', 'got', 'then', 'at', 'any', 'where', 'im', 'does', 'who', 'too', 'on', 'much', 'she', 'he', 'just', 'when', 'would', 'some', 'what',"they", "these", "them", "very", "has", "than", "really", "use", "up", "make", "your", "because", "were", "ive", "our", "there", "which", "their", "again", "her", "over", "go", "way", "could", "always", "cant", "makes", "two", "still", "first", "think", "though", "however", "didnt", "want", "into", "been", "after", "could", "should", "our", "also", "wasnt", "begin", "those", "might", "since", "thing", "three", "sure", "maybe", "item", "going", "no", "while", "wont", "ill", "see", "made"]
         
         for x, y in wordlistfreq.items():
             if x in unnecessary_text:#ถ้าเจอคำที่อาจไม่มีประโยชน์ ให้ข้ามไป
