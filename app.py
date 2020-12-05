@@ -5,22 +5,26 @@ from datetime import datetime
 import pymongo
 ts = datetime.now()
 
-# Replace your URL here. Don't forget to replace the password. 
+# เชื่อมต่อกับ Cloud Mongo. 
 connection_url = 'mongodb+srv://ADMIN01:admin01@cluster0.hq53d.mongodb.net/PROJECT_BIG_DATA?retryWrites=true&w=majority'
 app = Flask(__name__) 
-client = pymongo.MongoClient(connection_url) 
+client = pymongo.MongoClient(connection_url)
+cors = CORS(app, resources={r"/": {"origins": ""}})
 
 # Database 
 Database = client.get_database('PROJECT_BIG_DATA')
-
 Database_Main_Collections = client['PROJECT_BIG_DATA']
+
+# ดึง Table ไว้แก้ไข 
 Database_Update_ANALYSIS_WORDS_AMAZON = Database_Main_Collections['ANALYSIS_WORDS_AMAZON']
 Database_Update_ANALYSIS_WORDS_AMAZON_PAIRS = Database_Main_Collections['ANALYSIS_WORDS_AMAZON_ORDERED_PAIRS']
-# Table 
+
+# ดึง Table ไว้ดู 
 SampleTable_MainData = Database.AMAZON_FOOD_REVIEWS
 SampleTable_AnalysisData = Database.ANALYSIS_WORDS_AMAZON
 SampleTable_AnalysisData_Pairs = Database.ANALYSIS_WORDS_AMAZON_ORDERED_PAIRS
 
+#หน้าแรกของ API (กรณีใช้ในการทดสอบ/ทดลองเล่น)
 @app.route('/')
 @cross_origin()
 def helloOpen():
@@ -30,6 +34,7 @@ def helloOpen():
 /analysis_update/by_Score/ = ใช้อัพเดทข้อมูล(ไม่จำเป็นไม่ต้อง)<br>/analysis_pairs_update/ = ใช้อัพเดทข้อมูล(ไม่จำเป็นไม่ต้อง)'
     return main
 
+#ดูข้อมูลคร่าวๆ ตามจำนวนที่ใส่ไป(ยิ่งเยอะยิ่งช้า)
 @app.route('/find/<value>/')
 @cross_origin()
 def findAll(value): 
@@ -41,6 +46,7 @@ def findAll(value):
         i += 1
     return jsonify(output)
 
+#ดูข้อมูลคร่าวๆ ตามเงื่อนไขที่ใส่ไป เช่น หา อันที่มี 5ดาว ก็ /find/Score/5/ จะได้ข้อมูล 5000 ชุดแรก ที่มี ดาว 5 ดาว
 @app.route('/find/<variables>/<value>/')
 @cross_origin()
 def findVariablesByValue(variables,value): 
@@ -111,8 +117,9 @@ def Analysis_Update_Pairs():
         wordfreq = [wordlistALL[0].count(w) for w in wordlistALL_remove_duplicates]
         wordlistfreq = dict(zip(wordlistALL_remove_duplicates, wordfreq))
         mylist = []
+        unnecessary_text = ['is', 'in', 'but', 'of', 'to', 'the', 'have', 'are', 'so', 'was', 'a', 'for', 'and', 'is', 'that', 'its', 'get', 'more', 'for', 'will', 'from', 'me', 'too', 'as', 'it', 'like', 'that', 'was', 'not', 'so', 'be', 'i', 'my', 'are', 'do', 'or', 'this', 'had', 'other', 'by', 'am', 'all', 'an', 'on', 'can', 'as', 'how', 'did', 'about', 'me', 'too', 'if', 'id', 'ok', 'no', 'that', 'like', 'what', 'even', 'do', 'we', '-------------', 'you', 'with', 'dont', 'one', 'got', 'then', 'at', 'any', 'where', 'im', 'does', 'who', 'too', 'on', 'much', 'she', 'he', 'just', 'when', 'would', 'some', 'what']
         for x, y in wordlistfreq.items():
-            if x in ['is', 'in', 'but', 'of', 'to', 'the', 'have', 'are', 'so', 'was', 'a', 'for', 'and', 'is', 'that', 'its', 'get', 'more', 'for', 'will', 'from', 'me', 'too', 'as', 'it', 'like', 'that', 'was', 'not', 'so', 'be', 'i', 'my', 'are', 'do', 'or', 'this', 'had', 'other', 'by', 'am', 'all', 'an', 'on', 'can', 'as', 'how', 'did', 'about', 'me', 'too', 'if', 'id', 'ok', 'no', 'that', 'like', 'what', 'even', 'do', 'we', '-------------', 'you', 'with', 'dont', 'one', 'got', 'then', 'at', 'any', 'where', 'im', 'does', 'who', 'too', 'on', 'much', 'she', 'he', 'just', 'when', 'would', 'some', 'what']:
+            if x in unnecessary_text:
                 continue
             else:
                 dict_set = {"text":x, "value":y}
@@ -124,4 +131,4 @@ def Analysis_Update_Pairs():
     return "Update Success"
 
 if __name__ == '__main__': 
-	app.run(host='0.0.0.0', port=3000,debug=True) 
+	app.run(port=3000, debug=True) 
