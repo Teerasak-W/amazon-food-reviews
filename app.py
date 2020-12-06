@@ -30,8 +30,7 @@ SampleTable_AnalysisData_Pairs = Database.ANALYSIS_WORDS_AMAZON_ORDERED_PAIRS
 def helloOpen():
     main = 'WELCOME_AMAZON_FOOD_REVIEWS_API <br><br>/find/{จำนวนที่จะดึงมาดู}/\
         <br>/find/HelpfulnessDenominator/{เลข/max/min}/ = ความเป็นประโยชน์ <br>/find/HelpfulnessNumerator/{เลข/max/min}/ = ความมีประโยชน์ \
-        <br>/find/Score/{เลข1ถึง5}/ = คะแนน<br>/find/pairs/score/{เลข1-5}/ = คู่อันดับคำกับจำนวน<br>/find/pairs/search/{คำที่จะค้นหา}/ = หาว่าคำๆนี้อยู่ในช่วงคะแนน(ดาว) มีความถี่เท่าไร (ใช้เวลาค้นหาสักครู่...)<br><br>\
-        /analysis_update/by_Score/ = ใช้อัพเดทข้อมูล(ไม่จำเป็นไม่ต้อง)<br>/analysis_pairs_update/ = ใช้อัพเดทข้อมูล(ไม่จำเป็นไม่ต้อง)'
+        <br>/find/Score/{เลข1ถึง5}/ = คะแนน<br>/find/pairs/score/{เลข1-5}/ = คู่อันดับคำกับจำนวน<br>/find/pairs/search/{คำที่จะค้นหา}/ = หาว่าคำๆนี้อยู่ในช่วงคะแนน(ดาว) มีความถี่เท่าไร (ใช้เวลาค้นหาสักครู่...)'
     return main
 
 #ส่วนทดสอบ
